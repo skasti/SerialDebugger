@@ -21,6 +21,7 @@ namespace SerialDebugger
         private Thread _spBListenerThread;
 
         List<byte> _eol = new List<byte>();
+        private bool _running;
 
         public MainForm()
         {
@@ -63,15 +64,15 @@ namespace SerialDebugger
                 return;
             }
 
-            spA = new SerialPort(aName, 9600);
-            spB = new SerialPort(bName, 9600);
+            _spA = new SerialPort(aName, 9600);
+            _spB = new SerialPort(bName, 9600);
 
             _eol.Clear();
 
             if (eolInput.Text.StartsWith("\\h("))
             {
                 var hexStart = eolInput.Text.IndexOf('(') + 1;
-                var hexLength = eolInput.Text.IndexOf(')', hexStart) - (hexStart + 1);
+                var hexLength = eolInput.Text.IndexOf(')', hexStart) - hexStart;
 
                 var eolHex = eolInput.Text.Substring(hexStart, hexLength).Split(' ', '-', ',');
 
@@ -85,11 +86,11 @@ namespace SerialDebugger
                 _eol.AddRange(Encoding.Default.GetBytes(eolInput.Text));
             }
 
-            spA.ReadBufferSize = 1024;
-            spB.ReadBufferSize = 1024;
+            _spA.ReadBufferSize = 1024;
+            _spB.ReadBufferSize = 1024;
 
-            spA.Open();
-            spB.Open();
+            _spA.Open();
+            _spB.Open();
 
             _spAListenerThread = new Thread(SPAListener);
             _spBListenerThread = new Thread(SPBListener);
@@ -102,6 +103,8 @@ namespace SerialDebugger
             eolInput.Enabled = false;
             startButton.Enabled = false;
             stopButton.Enabled = true;
+
+            _running = true;
         }
 
         private void SPAListener()
@@ -113,7 +116,7 @@ namespace SerialDebugger
 
             while (true)
             {
-                while (spA.BytesToRead > 0)
+                while (_spA.BytesToRead > 0)
                 {
                     if (buffer[0] == 0)
                         bPos = 0;
@@ -124,7 +127,7 @@ namespace SerialDebugger
                         eolCounter = 0;
                     }
 
-                    var b = (byte)spA.ReadByte();
+                    var b = (byte)_spA.ReadByte();
                     buffer[bPos] = b;
 
                     if (b == _eol[eolCounter])
@@ -143,13 +146,9 @@ namespace SerialDebugger
                         bPos = 0;
                         eolCounter = 0;
 
-                        this.Invoke((MethodInvoker)delegate
-                        {
-                            spTextLog.Text += $"\n[{DateTime.Now.ToShortTimeString()}][{portName}]: {line}";
-                            spHexLog.Text += $"\n[{DateTime.Now.ToShortTimeString()}][{portName}]: {BitConverter.ToString(lineBytes).Replace('-',' ')}";
-                        });
+                        LogLine(portName, line, lineBytes);
 
-                        WriteLine(spB, line);
+                        WriteLine(_spB, line);
                     }
 
                     bPos++;
@@ -172,7 +171,7 @@ namespace SerialDebugger
 
             while (true)
             {
-                while (spB.BytesToRead > 0)
+                while (_spB.BytesToRead > 0)
                 {
                     if (buffer[0] == 0)
                         bPos = 0;
@@ -183,7 +182,7 @@ namespace SerialDebugger
                         eolCounter = 0;
                     }
 
-                    var b = (byte)spB.ReadByte();
+                    var b = (byte)_spB.ReadByte();
                     buffer[bPos] = b;
 
                     if (b == _eol[eolCounter])
@@ -202,18 +201,29 @@ namespace SerialDebugger
                         bPos = 0;
                         eolCounter = 0;
 
-                        this.Invoke((MethodInvoker)delegate
-                        {
-                            spTextLog.Text += $"\n[{DateTime.Now.ToShortTimeString()}][{portName}]: {line}";
-                            spHexLog.Text += $"\n[{DateTime.Now.ToShortTimeString()}][{portName}]: {BitConverter.ToString(lineBytes).Replace('-', ' ')}";
-                        });
+                        LogLine(portName, line, lineBytes);
 
-                        WriteLine(spA, line);
+                        WriteLine(_spA, line);
                     }
 
                     bPos++;
                 }
             }
+        }
+
+        private void LogLine(string portName, string line, byte[] lineBytes)
+        {
+            this.Invoke((MethodInvoker) delegate
+            {
+                spTextLog.Text += $"\n[{DateTime.Now.ToLongTimeString()}][{portName}]: {line}";
+                spHexLog.Text += $"\n[{DateTime.Now.ToLongTimeString()}][{portName}]: {BitConverter.ToString(lineBytes).Replace('-', ' ')}";
+
+                spTextLog.SelectionStart = spTextLog.TextLength;
+                spHexLog.SelectionStart = spHexLog.TextLength;
+
+                spTextLog.ScrollToCaret();
+                spHexLog.ScrollToCaret();
+            });
         }
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -223,6 +233,9 @@ namespace SerialDebugger
 
         private void StopDebugging()
         {
+            if (!_running)
+                return;
+
             _spAListenerThread.Abort();
             _spBListenerThread.Abort();
             _spA.Close();
@@ -232,6 +245,8 @@ namespace SerialDebugger
             eolInput.Enabled = true;
             startButton.Enabled = true;
             stopButton.Enabled = false;
+
+            _running = false;
         }
 
         private void stopButton_Click(object sender, EventArgs e)

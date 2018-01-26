@@ -1,9 +1,0 @@
-e:\Projects\SerialDebugger\SerialDebugger\bin\Debug\SerialDebugger.exe.config
-e:\Projects\SerialDebugger\SerialDebugger\bin\Debug\SerialDebugger.exe
-e:\Projects\SerialDebugger\SerialDebugger\bin\Debug\SerialDebugger.pdb
-e:\Projects\SerialDebugger\SerialDebugger\obj\Debug\SerialDebugger.csprojResolveAssemblyReference.cache
-e:\Projects\SerialDebugger\SerialDebugger\obj\Debug\SerialDebugger.MainForm.resources
-e:\Projects\SerialDebugger\SerialDebugger\obj\Debug\SerialDebugger.Properties.Resources.resources
-e:\Projects\SerialDebugger\SerialDebugger\obj\Debug\SerialDebugger.csproj.GenerateResource.Cache
-e:\Projects\SerialDebugger\SerialDebugger\obj\Debug\SerialDebugger.exe
-e:\Projects\SerialDebugger\SerialDebugger\obj\Debug\SerialDebugger.pdb

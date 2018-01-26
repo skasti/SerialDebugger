@@ -220,8 +220,6 @@
 
         #endregion
 
-        private System.IO.Ports.SerialPort spA;
-        private System.IO.Ports.SerialPort spB;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.GroupBox settingsPanel;
         private System.Windows.Forms.Button spARefresh;
