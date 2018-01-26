@@ -29,18 +29,19 @@
         private void InitializeComponent()
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.spTextLog = new System.Windows.Forms.RichTextBox();
+            this.spHexLog = new System.Windows.Forms.RichTextBox();
             this.settingsPanel = new System.Windows.Forms.GroupBox();
-            this.spASelectorLabel = new System.Windows.Forms.Label();
-            this.spASelector = new System.Windows.Forms.ComboBox();
-            this.spARefresh = new System.Windows.Forms.Button();
+            this.startButton = new System.Windows.Forms.Button();
+            this.eolInput = new System.Windows.Forms.TextBox();
+            this.eolLabel = new System.Windows.Forms.Label();
             this.spBRefresh = new System.Windows.Forms.Button();
             this.spBSelector = new System.Windows.Forms.ComboBox();
             this.spBSelectorLabel = new System.Windows.Forms.Label();
-            this.eolLabel = new System.Windows.Forms.Label();
-            this.eolInput = new System.Windows.Forms.TextBox();
-            this.startButton = new System.Windows.Forms.Button();
-            this.spTextLog = new System.Windows.Forms.RichTextBox();
-            this.spHexLog = new System.Windows.Forms.RichTextBox();
+            this.spARefresh = new System.Windows.Forms.Button();
+            this.spASelector = new System.Windows.Forms.ComboBox();
+            this.spASelectorLabel = new System.Windows.Forms.Label();
+            this.stopButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -67,8 +68,27 @@
             this.splitContainer1.SplitterDistance = 502;
             this.splitContainer1.TabIndex = 0;
             // 
+            // spTextLog
+            // 
+            this.spTextLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.spTextLog.Location = new System.Drawing.Point(0, 0);
+            this.spTextLog.Name = "spTextLog";
+            this.spTextLog.Size = new System.Drawing.Size(502, 942);
+            this.spTextLog.TabIndex = 0;
+            this.spTextLog.Text = "";
+            // 
+            // spHexLog
+            // 
+            this.spHexLog.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.spHexLog.Location = new System.Drawing.Point(0, 0);
+            this.spHexLog.Name = "spHexLog";
+            this.spHexLog.Size = new System.Drawing.Size(565, 942);
+            this.spHexLog.TabIndex = 0;
+            this.spHexLog.Text = "";
+            // 
             // settingsPanel
             // 
+            this.settingsPanel.Controls.Add(this.stopButton);
             this.settingsPanel.Controls.Add(this.startButton);
             this.settingsPanel.Controls.Add(this.eolInput);
             this.settingsPanel.Controls.Add(this.eolLabel);
@@ -85,32 +105,33 @@
             this.settingsPanel.TabStop = false;
             this.settingsPanel.Text = "Connection Settings";
             // 
-            // spASelectorLabel
+            // startButton
             // 
-            this.spASelectorLabel.AutoSize = true;
-            this.spASelectorLabel.Location = new System.Drawing.Point(6, 46);
-            this.spASelectorLabel.Name = "spASelectorLabel";
-            this.spASelectorLabel.Size = new System.Drawing.Size(101, 20);
-            this.spASelectorLabel.TabIndex = 0;
-            this.spASelectorLabel.Text = "Serial Port A:";
+            this.startButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.startButton.Location = new System.Drawing.Point(6, 250);
+            this.startButton.Name = "startButton";
+            this.startButton.Size = new System.Drawing.Size(75, 36);
+            this.startButton.TabIndex = 8;
+            this.startButton.Text = "Start";
+            this.startButton.UseVisualStyleBackColor = true;
+            this.startButton.Click += new System.EventHandler(this.startButton_Click);
             // 
-            // spASelector
+            // eolInput
             // 
-            this.spASelector.FormattingEnabled = true;
-            this.spASelector.Location = new System.Drawing.Point(6, 69);
-            this.spASelector.Name = "spASelector";
-            this.spASelector.Size = new System.Drawing.Size(290, 28);
-            this.spASelector.TabIndex = 1;
+            this.eolInput.Location = new System.Drawing.Point(6, 207);
+            this.eolInput.Name = "eolInput";
+            this.eolInput.Size = new System.Drawing.Size(331, 26);
+            this.eolInput.TabIndex = 7;
+            this.eolInput.Text = "\\h(FF FF FF)";
             // 
-            // spARefresh
+            // eolLabel
             // 
-            this.spARefresh.Location = new System.Drawing.Point(302, 69);
-            this.spARefresh.Name = "spARefresh";
-            this.spARefresh.Size = new System.Drawing.Size(35, 38);
-            this.spARefresh.TabIndex = 2;
-            this.spARefresh.Text = "U";
-            this.spARefresh.UseVisualStyleBackColor = true;
-            this.spARefresh.Click += new System.EventHandler(this.spARefresh_Click);
+            this.eolLabel.AutoSize = true;
+            this.eolLabel.Location = new System.Drawing.Point(6, 184);
+            this.eolLabel.Name = "eolLabel";
+            this.eolLabel.Size = new System.Drawing.Size(122, 20);
+            this.eolLabel.TabIndex = 6;
+            this.eolLabel.Text = "EOL Sequence:";
             // 
             // spBRefresh
             // 
@@ -137,52 +158,45 @@
             this.spBSelectorLabel.Name = "spBSelectorLabel";
             this.spBSelectorLabel.Size = new System.Drawing.Size(101, 20);
             this.spBSelectorLabel.TabIndex = 3;
-            this.spBSelectorLabel.Text = "Serial Port A:";
+            this.spBSelectorLabel.Text = "Serial Port B:";
             // 
-            // eolLabel
+            // spARefresh
             // 
-            this.eolLabel.AutoSize = true;
-            this.eolLabel.Location = new System.Drawing.Point(6, 184);
-            this.eolLabel.Name = "eolLabel";
-            this.eolLabel.Size = new System.Drawing.Size(122, 20);
-            this.eolLabel.TabIndex = 6;
-            this.eolLabel.Text = "EOL Sequence:";
+            this.spARefresh.Location = new System.Drawing.Point(302, 69);
+            this.spARefresh.Name = "spARefresh";
+            this.spARefresh.Size = new System.Drawing.Size(35, 38);
+            this.spARefresh.TabIndex = 2;
+            this.spARefresh.Text = "U";
+            this.spARefresh.UseVisualStyleBackColor = true;
+            this.spARefresh.Click += new System.EventHandler(this.spARefresh_Click);
             // 
-            // eolInput
+            // spASelector
             // 
-            this.eolInput.Location = new System.Drawing.Point(6, 207);
-            this.eolInput.Name = "eolInput";
-            this.eolInput.Size = new System.Drawing.Size(331, 26);
-            this.eolInput.TabIndex = 7;
+            this.spASelector.FormattingEnabled = true;
+            this.spASelector.Location = new System.Drawing.Point(6, 69);
+            this.spASelector.Name = "spASelector";
+            this.spASelector.Size = new System.Drawing.Size(290, 28);
+            this.spASelector.TabIndex = 1;
             // 
-            // startButton
+            // spASelectorLabel
             // 
-            this.startButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.startButton.Location = new System.Drawing.Point(6, 258);
-            this.startButton.Name = "startButton";
-            this.startButton.Size = new System.Drawing.Size(75, 28);
-            this.startButton.TabIndex = 8;
-            this.startButton.Text = "Start";
-            this.startButton.UseVisualStyleBackColor = true;
-            this.startButton.Click += new System.EventHandler(this.startButton_Click);
+            this.spASelectorLabel.AutoSize = true;
+            this.spASelectorLabel.Location = new System.Drawing.Point(6, 46);
+            this.spASelectorLabel.Name = "spASelectorLabel";
+            this.spASelectorLabel.Size = new System.Drawing.Size(101, 20);
+            this.spASelectorLabel.TabIndex = 0;
+            this.spASelectorLabel.Text = "Serial Port A:";
             // 
-            // spTextLog
+            // stopButton
             // 
-            this.spTextLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.spTextLog.Location = new System.Drawing.Point(0, 0);
-            this.spTextLog.Name = "spTextLog";
-            this.spTextLog.Size = new System.Drawing.Size(502, 942);
-            this.spTextLog.TabIndex = 0;
-            this.spTextLog.Text = "";
-            // 
-            // spHexLog
-            // 
-            this.spHexLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.spHexLog.Location = new System.Drawing.Point(0, 0);
-            this.spHexLog.Name = "spHexLog";
-            this.spHexLog.Size = new System.Drawing.Size(565, 942);
-            this.spHexLog.TabIndex = 0;
-            this.spHexLog.Text = "";
+            this.stopButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.stopButton.Location = new System.Drawing.Point(87, 250);
+            this.stopButton.Name = "stopButton";
+            this.stopButton.Size = new System.Drawing.Size(75, 36);
+            this.stopButton.TabIndex = 9;
+            this.stopButton.Text = "Stop";
+            this.stopButton.UseVisualStyleBackColor = true;
+            this.stopButton.Click += new System.EventHandler(this.stopButton_Click);
             // 
             // MainForm
             // 
@@ -221,6 +235,7 @@
         private System.Windows.Forms.Button startButton;
         private System.Windows.Forms.RichTextBox spTextLog;
         private System.Windows.Forms.RichTextBox spHexLog;
+        private System.Windows.Forms.Button stopButton;
     }
 }
 

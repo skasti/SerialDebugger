@@ -20,6 +20,8 @@ namespace SerialDebugger
         private Thread _spAListenerThread;
         private Thread _spBListenerThread;
 
+        List<byte> _eol = new List<byte>();
+
         public MainForm()
         {
             InitializeComponent();
@@ -64,8 +66,24 @@ namespace SerialDebugger
             spA = new SerialPort(aName, 9600);
             spB = new SerialPort(bName, 9600);
 
-            //spA.NewLine = Encoding.Default.GetString(new byte[] {0xFF, 0xFF, 0xFF});
-            //spB.NewLine = Encoding.Default.GetString(new byte[] { 0xFF, 0xFF, 0xFF });
+            _eol.Clear();
+
+            if (eolInput.Text.StartsWith("\\h("))
+            {
+                var hexStart = eolInput.Text.IndexOf('(') + 1;
+                var hexLength = eolInput.Text.IndexOf(')', hexStart) - (hexStart + 1);
+
+                var eolHex = eolInput.Text.Substring(hexStart, hexLength).Split(' ', '-', ',');
+
+                foreach (var hexStr in eolHex)
+                {
+                    _eol.Add(Convert.ToByte(hexStr, 16));
+                }
+            }
+            else
+            {
+                _eol.AddRange(Encoding.Default.GetBytes(eolInput.Text));
+            }
 
             spA.ReadBufferSize = 1024;
             spB.ReadBufferSize = 1024;
@@ -81,6 +99,9 @@ namespace SerialDebugger
 
             spASelector.Enabled = false;
             spBSelector.Enabled = false;
+            eolInput.Enabled = false;
+            startButton.Enabled = false;
+            stopButton.Enabled = true;
         }
 
         private void SPAListener()
@@ -106,14 +127,14 @@ namespace SerialDebugger
                     var b = (byte)spA.ReadByte();
                     buffer[bPos] = b;
 
-                    if (b == 0xFF)
+                    if (b == _eol[eolCounter])
                         eolCounter++;
                     else
                         eolCounter = 0;
 
-                    if (eolCounter == 3)
+                    if (eolCounter == _eol.Count)
                     {
-                        var lineBytes = buffer.Take(bPos - 2).ToArray();
+                        var lineBytes = buffer.Take(bPos - (_eol.Count - 1)).ToArray();
                         var line = Encoding.Default.GetString(lineBytes);
 
                         for (int i = 0; i < bPos; i++)
@@ -165,14 +186,14 @@ namespace SerialDebugger
                     var b = (byte)spB.ReadByte();
                     buffer[bPos] = b;
 
-                    if (b == 0xFF)
+                    if (b == _eol[eolCounter])
                         eolCounter++;
                     else
                         eolCounter = 0;
 
-                    if (eolCounter == 3)
+                    if (eolCounter == _eol.Count)
                     {
-                        var lineBytes = buffer.Take(bPos - 2).ToArray();
+                        var lineBytes = buffer.Take(bPos - (_eol.Count-1)).ToArray();
                         var line = Encoding.Default.GetString(lineBytes);
 
                         for (int i = 0; i < bPos; i++)
@@ -197,8 +218,25 @@ namespace SerialDebugger
 
         private void MainForm_FormClosing(object sender, FormClosingEventArgs e)
         {
+            StopDebugging();
+        }
+
+        private void StopDebugging()
+        {
             _spAListenerThread.Abort();
             _spBListenerThread.Abort();
+            _spA.Close();
+            _spB.Close();
+            spASelector.Enabled = true;
+            spBSelector.Enabled = true;
+            eolInput.Enabled = true;
+            startButton.Enabled = true;
+            stopButton.Enabled = false;
+        }
+
+        private void stopButton_Click(object sender, EventArgs e)
+        {
+            StopDebugging();
         }
     }
 }
