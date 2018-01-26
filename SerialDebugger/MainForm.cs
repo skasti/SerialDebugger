@@ -94,7 +94,7 @@ namespace SerialDebugger
             {
                 while (spA.BytesToRead > 0)
                 {
-                    if ((buffer[0] != 'p') && (buffer[0] != 'q'))
+                    if (buffer[0] == 0)
                         bPos = 0;
 
                     if (bPos >= 40)
