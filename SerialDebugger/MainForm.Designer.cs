@@ -32,6 +32,7 @@
             this.spTextLog = new System.Windows.Forms.RichTextBox();
             this.spHexLog = new System.Windows.Forms.RichTextBox();
             this.settingsPanel = new System.Windows.Forms.GroupBox();
+            this.stopButton = new System.Windows.Forms.Button();
             this.startButton = new System.Windows.Forms.Button();
             this.eolInput = new System.Windows.Forms.TextBox();
             this.eolLabel = new System.Windows.Forms.Label();
@@ -41,7 +42,10 @@
             this.spARefresh = new System.Windows.Forms.Button();
             this.spASelector = new System.Windows.Forms.ComboBox();
             this.spASelectorLabel = new System.Windows.Forms.Label();
-            this.stopButton = new System.Windows.Forms.Button();
+            this.baudRateInput = new System.Windows.Forms.ComboBox();
+            this.baudSelectorLabel = new System.Windows.Forms.Label();
+            this.logEnabled = new System.Windows.Forms.CheckBox();
+            this.clearLogsButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -88,6 +92,9 @@
             // 
             // settingsPanel
             // 
+            this.settingsPanel.Controls.Add(this.logEnabled);
+            this.settingsPanel.Controls.Add(this.baudRateInput);
+            this.settingsPanel.Controls.Add(this.baudSelectorLabel);
             this.settingsPanel.Controls.Add(this.stopButton);
             this.settingsPanel.Controls.Add(this.startButton);
             this.settingsPanel.Controls.Add(this.eolInput);
@@ -100,15 +107,26 @@
             this.settingsPanel.Controls.Add(this.spASelectorLabel);
             this.settingsPanel.Location = new System.Drawing.Point(12, 12);
             this.settingsPanel.Name = "settingsPanel";
-            this.settingsPanel.Size = new System.Drawing.Size(343, 292);
+            this.settingsPanel.Size = new System.Drawing.Size(343, 357);
             this.settingsPanel.TabIndex = 1;
             this.settingsPanel.TabStop = false;
             this.settingsPanel.Text = "Connection Settings";
             // 
+            // stopButton
+            // 
+            this.stopButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.stopButton.Location = new System.Drawing.Point(87, 315);
+            this.stopButton.Name = "stopButton";
+            this.stopButton.Size = new System.Drawing.Size(75, 36);
+            this.stopButton.TabIndex = 9;
+            this.stopButton.Text = "Stop";
+            this.stopButton.UseVisualStyleBackColor = true;
+            this.stopButton.Click += new System.EventHandler(this.stopButton_Click);
+            // 
             // startButton
             // 
             this.startButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.startButton.Location = new System.Drawing.Point(6, 250);
+            this.startButton.Location = new System.Drawing.Point(6, 315);
             this.startButton.Name = "startButton";
             this.startButton.Size = new System.Drawing.Size(75, 36);
             this.startButton.TabIndex = 8;
@@ -118,7 +136,7 @@
             // 
             // eolInput
             // 
-            this.eolInput.Location = new System.Drawing.Point(6, 207);
+            this.eolInput.Location = new System.Drawing.Point(6, 276);
             this.eolInput.Name = "eolInput";
             this.eolInput.Size = new System.Drawing.Size(331, 26);
             this.eolInput.TabIndex = 7;
@@ -127,7 +145,7 @@
             // eolLabel
             // 
             this.eolLabel.AutoSize = true;
-            this.eolLabel.Location = new System.Drawing.Point(6, 184);
+            this.eolLabel.Location = new System.Drawing.Point(6, 253);
             this.eolLabel.Name = "eolLabel";
             this.eolLabel.Size = new System.Drawing.Size(122, 20);
             this.eolLabel.TabIndex = 6;
@@ -187,22 +205,58 @@
             this.spASelectorLabel.TabIndex = 0;
             this.spASelectorLabel.Text = "Serial Port A:";
             // 
-            // stopButton
+            // baudRateInput
             // 
-            this.stopButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.stopButton.Location = new System.Drawing.Point(87, 250);
-            this.stopButton.Name = "stopButton";
-            this.stopButton.Size = new System.Drawing.Size(75, 36);
-            this.stopButton.TabIndex = 9;
-            this.stopButton.Text = "Stop";
-            this.stopButton.UseVisualStyleBackColor = true;
-            this.stopButton.Click += new System.EventHandler(this.stopButton_Click);
+            this.baudRateInput.FormattingEnabled = true;
+            this.baudRateInput.Items.AddRange(new object[] {
+            "9600",
+            "19200",
+            "38400",
+            "57600",
+            "115200"});
+            this.baudRateInput.Location = new System.Drawing.Point(6, 207);
+            this.baudRateInput.Name = "baudRateInput";
+            this.baudRateInput.Size = new System.Drawing.Size(290, 28);
+            this.baudRateInput.TabIndex = 11;
+            this.baudRateInput.Text = "9600";
+            // 
+            // baudSelectorLabel
+            // 
+            this.baudSelectorLabel.AutoSize = true;
+            this.baudSelectorLabel.Location = new System.Drawing.Point(6, 184);
+            this.baudSelectorLabel.Name = "baudSelectorLabel";
+            this.baudSelectorLabel.Size = new System.Drawing.Size(101, 20);
+            this.baudSelectorLabel.TabIndex = 10;
+            this.baudSelectorLabel.Text = "Serial Port B:";
+            // 
+            // logEnabled
+            // 
+            this.logEnabled.AutoSize = true;
+            this.logEnabled.Checked = true;
+            this.logEnabled.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.logEnabled.Location = new System.Drawing.Point(168, 322);
+            this.logEnabled.Name = "logEnabled";
+            this.logEnabled.Size = new System.Drawing.Size(146, 24);
+            this.logEnabled.TabIndex = 12;
+            this.logEnabled.Text = "Enable Logging";
+            this.logEnabled.UseVisualStyleBackColor = true;
+            // 
+            // clearLogsButton
+            // 
+            this.clearLogsButton.Location = new System.Drawing.Point(251, 375);
+            this.clearLogsButton.Name = "clearLogsButton";
+            this.clearLogsButton.Size = new System.Drawing.Size(104, 39);
+            this.clearLogsButton.TabIndex = 2;
+            this.clearLogsButton.Text = "Clear logs";
+            this.clearLogsButton.UseVisualStyleBackColor = true;
+            this.clearLogsButton.Click += new System.EventHandler(this.clearLogsButton_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1454, 966);
+            this.Controls.Add(this.clearLogsButton);
             this.Controls.Add(this.settingsPanel);
             this.Controls.Add(this.splitContainer1);
             this.Name = "MainForm";
@@ -234,6 +288,10 @@
         private System.Windows.Forms.RichTextBox spTextLog;
         private System.Windows.Forms.RichTextBox spHexLog;
         private System.Windows.Forms.Button stopButton;
+        private System.Windows.Forms.ComboBox baudRateInput;
+        private System.Windows.Forms.Label baudSelectorLabel;
+        private System.Windows.Forms.CheckBox logEnabled;
+        private System.Windows.Forms.Button clearLogsButton;
     }
 }
 

@@ -32,6 +32,12 @@ namespace SerialDebugger
             spBSelector.Items.AddRange(names);
             spASelector.Items.Clear();
             spASelector.Items.AddRange(names);
+
+            if (names.Length > 1)
+            {
+                spASelector.SelectedItem = names[names.Length - 2];
+                spBSelector.SelectedItem = names[names.Length - 1];
+            }
         }
 
         private void spARefresh_Click(object sender, EventArgs e)
@@ -64,8 +70,16 @@ namespace SerialDebugger
                 return;
             }
 
-            _spA = new SerialPort(aName, 9600);
-            _spB = new SerialPort(bName, 9600);
+            int baudRate;
+            if (!int.TryParse(baudRateInput.Text, out baudRate))
+            {
+                MessageBox.Show($"Baudrate not valid: {baudRateInput.Text}", "Invalid baudrate", MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+                return;
+            }
+
+            _spA = new SerialPort(aName, baudRate);
+            _spB = new SerialPort(bName, baudRate);
 
             _eol.Clear();
 
@@ -104,6 +118,9 @@ namespace SerialDebugger
             startButton.Enabled = false;
             stopButton.Enabled = true;
 
+            spTextLog.Text = "";
+            spHexLog.Text = "";
+
             _running = true;
         }
 
@@ -116,42 +133,56 @@ namespace SerialDebugger
 
             while (true)
             {
-                while (_spA.BytesToRead > 0)
+                try
                 {
-                    if (buffer[0] == 0)
-                        bPos = 0;
-
-                    if (bPos >= 40)
+                    if (!_spA.IsOpen)
                     {
-                        bPos = 0;
-                        eolCounter = 0;
+                        StopDebugging();
+                        return;
                     }
 
-                    var b = (byte)_spA.ReadByte();
-                    buffer[bPos] = b;
-
-                    if (b == _eol[eolCounter])
-                        eolCounter++;
-                    else
-                        eolCounter = 0;
-
-                    if (eolCounter == _eol.Count)
+                    while (_spA.BytesToRead > 0)
                     {
-                        var lineBytes = buffer.Take(bPos - (_eol.Count - 1)).ToArray();
-                        var line = Encoding.Default.GetString(lineBytes);
+                        if (buffer[0] == 0)
+                            bPos = 0;
 
-                        for (int i = 0; i < bPos; i++)
-                            buffer[i] = 0x00;
+                        if (bPos >= 40)
+                        {
+                            bPos = 0;
+                            eolCounter = 0;
+                        }
 
-                        bPos = 0;
-                        eolCounter = 0;
+                        var b = (byte)_spA.ReadByte();
+                        buffer[bPos] = b;
 
-                        LogLine(portName, line, lineBytes);
+                        if (b == _eol[eolCounter])
+                            eolCounter++;
+                        else
+                            eolCounter = 0;
 
-                        WriteLine(_spB, line);
+                        if (eolCounter == _eol.Count)
+                        {
+                            var lineBytes = buffer.Take(bPos - (_eol.Count - 1)).ToArray();
+                            var line = Encoding.Default.GetString(lineBytes);
+
+                            for (int i = 0; i < bPos; i++)
+                                buffer[i] = 0x00;
+
+                            bPos = 0;
+                            eolCounter = 0;
+
+                            LogLine(portName, line, lineBytes);
+
+                            WriteLine(_spB, line);
+                        }
+
+                        bPos++;
                     }
-
-                    bPos++;
+                }
+                catch (Exception)
+                {
+                    StopDebugging();
+                    return;
                 }
             }
         }
@@ -171,42 +202,56 @@ namespace SerialDebugger
 
             while (true)
             {
-                while (_spB.BytesToRead > 0)
+                try
                 {
-                    if (buffer[0] == 0)
-                        bPos = 0;
-
-                    if (bPos >= 40)
+                    if (!_spB.IsOpen)
                     {
-                        bPos = 0;
-                        eolCounter = 0;
+                        StopDebugging();
+                        return;
                     }
 
-                    var b = (byte)_spB.ReadByte();
-                    buffer[bPos] = b;
-
-                    if (b == _eol[eolCounter])
-                        eolCounter++;
-                    else
-                        eolCounter = 0;
-
-                    if (eolCounter == _eol.Count)
+                    while (_spB.BytesToRead > 0)
                     {
-                        var lineBytes = buffer.Take(bPos - (_eol.Count-1)).ToArray();
-                        var line = Encoding.Default.GetString(lineBytes);
+                        if (buffer[0] == 0)
+                            bPos = 0;
 
-                        for (int i = 0; i < bPos; i++)
-                            buffer[i] = 0x00;
+                        if (bPos >= 40)
+                        {
+                            bPos = 0;
+                            eolCounter = 0;
+                        }
 
-                        bPos = 0;
-                        eolCounter = 0;
+                        var b = (byte) _spB.ReadByte();
+                        buffer[bPos] = b;
 
-                        LogLine(portName, line, lineBytes);
+                        if (b == _eol[eolCounter])
+                            eolCounter++;
+                        else
+                            eolCounter = 0;
 
-                        WriteLine(_spA, line);
+                        if (eolCounter == _eol.Count)
+                        {
+                            var lineBytes = buffer.Take(bPos - (_eol.Count - 1)).ToArray();
+                            var line = Encoding.Default.GetString(lineBytes);
+
+                            for (int i = 0; i < bPos; i++)
+                                buffer[i] = 0x00;
+
+                            bPos = 0;
+                            eolCounter = 0;
+
+                            LogLine(portName, line, lineBytes);
+
+                            WriteLine(_spA, line);
+                        }
+
+                        bPos++;
                     }
-
-                    bPos++;
+                }
+                catch (Exception)
+                {
+                    StopDebugging();
+                    return;
                 }
             }
         }
@@ -215,8 +260,11 @@ namespace SerialDebugger
         {
             this.Invoke((MethodInvoker) delegate
             {
-                spTextLog.Text += $"\n[{DateTime.Now.ToLongTimeString()}][{portName}]: {line}";
-                spHexLog.Text += $"\n[{DateTime.Now.ToLongTimeString()}][{portName}]: {BitConverter.ToString(lineBytes).Replace('-', ' ')}";
+                if (!logEnabled.Checked)
+                    return;
+
+                spTextLog.AppendText($"\n[{DateTime.Now.ToLongTimeString()}][{portName}]: {line}");
+                spHexLog.AppendText($"\n[{DateTime.Now.ToLongTimeString()}][{portName}]: {BitConverter.ToString(lineBytes).Replace('-', ' ')}");
 
                 spTextLog.SelectionStart = spTextLog.TextLength;
                 spHexLog.SelectionStart = spHexLog.TextLength;
@@ -233,25 +281,35 @@ namespace SerialDebugger
 
         private void StopDebugging()
         {
-            if (!_running)
-                return;
+            this.Invoke((MethodInvoker) delegate
+            {
+                if (!_running)
+                    return;
 
-            _spAListenerThread.Abort();
-            _spBListenerThread.Abort();
-            _spA.Close();
-            _spB.Close();
-            spASelector.Enabled = true;
-            spBSelector.Enabled = true;
-            eolInput.Enabled = true;
-            startButton.Enabled = true;
-            stopButton.Enabled = false;
+                spASelector.Enabled = true;
+                spBSelector.Enabled = true;
+                eolInput.Enabled = true;
+                startButton.Enabled = true;
+                stopButton.Enabled = false;
 
-            _running = false;
+                _spAListenerThread.Abort();
+                _spBListenerThread.Abort();
+                _spA.Close();
+                _spB.Close();
+
+                _running = false;
+            });
         }
 
         private void stopButton_Click(object sender, EventArgs e)
         {
             StopDebugging();
+        }
+
+        private void clearLogsButton_Click(object sender, EventArgs e)
+        {
+            spHexLog.Clear();
+            spTextLog.Clear();
         }
     }
 }
